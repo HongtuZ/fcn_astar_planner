@@ -32,11 +32,11 @@ if __name__ == '__main__':
 	predictions = []
 	for i in range(1):
 		input_path = inputs_file_path+str(i)+'.png'
-		prediction_path = predictions_file_path+str(i)+'.png'
+		prediction_path = predictions_file_path+str(i)+'.txt'
 		input_img = cv2.imread(input_path, 1)
-		prediction_img = cv2.imread(prediction_path, 0)
 		inputs.append(input_img)
-		predictions.append(prediction_img)
+		prediction = np.loadtxt(prediction_path)
+		predictions.append(prediction)
 	#get the car status
 	car  = Car()
 	car.speed = 1 #m/s
@@ -45,13 +45,20 @@ if __name__ == '__main__':
 	start_point = Node(300, 75, 0)
 	target_point = get_target(inputs[0])
 	obstacle_map = inputs[0][:,:,2]
+	prediction_map = predictions[0]
+	print('input size:', obstacle_map.shape)
 	#obstacle_map = np.zeros([400, 152])
 	#create AStar search
-	astar = AStar(start_point, target_point, obstacle_map, predictions[0], car)
+	astar = AStar(start_point, target_point, obstacle_map, prediction_map, car)
 	astar.search()
 	'''
-	cv2.imshow('obstacle map', obstacle_map)
-	#cv2.imshow('prediction', predictions[0])
+	cv2.imshow('obstacle_map', obstacle_map)
+	prediction_img = np.full([predictions[0].shape[0], predictions[0].shape[1], 3], 0, np.uint8)
+	for r in range(prediction_img.shape[0]):
+		for c in range(prediction_img.shape[1]):
+			if predictions[0][r][c] > 0:
+				prediction_img[r][c] = [0, int(255*predictions[0][r][c]), 0]
+	cv2.imshow('prediction', prediction_img)
 	cv2.waitKey(0)
 	cv2.destroyAllWindows()
 	'''

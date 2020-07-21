@@ -43,7 +43,7 @@ class AStar(object):
 		self.T = target_point
 		self.obstacle_map = obstacle_map
 		self.obstacle_distance_map = []
-		self.collision_r = car.length / 2 / 0.2
+		self.collision_r = car.hight / 2 / 0.2
 		self.fcn_map = fcn_map
 		self.car = car
 		self.lookup_table = generate_table()
@@ -76,7 +76,7 @@ class AStar(object):
 				next_nodes_all.append(Node(node_now.x + step[0], node_now.y + step[1], step[2]))
 			if ang_err == 0 or (ang_range - ang_err < 5 and ang_range - ang_err > 0) or (ang_range - (360 - ang_err) < 5 and ang_range - (360 - ang_err) > 0):
 				next_nodes_final.append(Node(node_now.x + step[0], node_now.y + step[1], step[2]))
-		next_nodes_final += random.sample(next_nodes_all, max(int(len(next_nodes_all)/5), 3))
+		next_nodes_final += random.sample(next_nodes_all, max(int(len(next_nodes_all)/4), 3))
 		#print('get %s sub_nodes' % len(next_nodes_final))
 		return next_nodes_final
 
@@ -84,7 +84,7 @@ class AStar(object):
 		return sqrt((node_next.x - node_now.x)**2+(node_next.y - node_now.y)**2) + (1 / 10) * abs(node_next.ang - node_now.ang)
 
 	def heuristic(self, node_next):
-		return 2 * sqrt((self.T.x - node_next.x)**2 + (self.T.y - node_next.y)**2)
+		return 2 * sqrt((self.T.x - node_next.x)**2 + (self.T.y - node_next.y)**2) + (1 / 20) * abs(node_next.ang - self.T.ang)
 
 	def is_goal(self, node):
 		if abs(self.T.x - node.x) <= 2 and abs(self.T.y - node.y) <= 2 and abs(self.T.ang - node.ang) <= 20:
@@ -199,18 +199,23 @@ class AStar(object):
 				elif not in_list(node_next, open_list):
 					node_next.pre_node = node_now
 					#calculate node_next g and h value
-					#w = 0.5 - log(fcn_map[node_next.x][node_next.y])
+					w = 0.5 - log(self.fcn_map[node_next.x][node_next.y])
+					'''
 					w = 1
 					if self.fcn_map[node_next.x][node_next.y] != 0:
 						w = tc.FCN_WEIGHT
+					'''
 					node_next.g = node_now.g + w * self. cost(node_now, node_next)
 					node_next.h = w * self.heuristic(node_next)
 					heappush(open_list, node_next)
 				else:
 					#compare the new way with the old one
+					w = 0.5 - log(self.fcn_map[node_next.x][node_next.y])
+					'''
 					w = 1
 					if self.fcn_map[node_next.x][node_next.y] != 0:
 						w = tc.FCN_WEIGHT
+					'''
 					g_new = node_now.g + w * self.cost(node_now, node_next)
 					if g_new < node_next.g:
 						node_next.g = g_new
