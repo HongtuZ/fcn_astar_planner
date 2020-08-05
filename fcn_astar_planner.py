@@ -26,11 +26,12 @@ def get_target(input_img):
 
 if __name__ == '__main__':
 	#read the inputs and outputs
-	inputs_file_path = 'inputs/'
-	predictions_file_path = 'predictions/'
+	target_num = 10 
+	inputs_file_path = 'inputs/'+str(target_num)+'pics/'
+	predictions_file_path = 'predictions/'+str(target_num)+'/'
 	inputs = []
 	predictions = []
-	for i in range(1):
+	for i in range(target_num):
 		input_path = inputs_file_path+str(i)+'.png'
 		prediction_path = predictions_file_path+str(i)+'.txt'
 		input_img = cv2.imread(input_path, 1)
@@ -39,17 +40,18 @@ if __name__ == '__main__':
 		predictions.append(prediction)
 	#get the car status
 	car  = Car()
-	car.speed = 1 #m/s
+	car.speed = 5 #m/s
 	print('car:', car)
 	#extract the start point, target point and obstacle map
 	start_point = Node(300, 75, 0)
-	target_point = get_target(inputs[0])
 	obstacle_map = inputs[0][:,:,2]
-	prediction_map = predictions[0]
+	targets = []
+	for t in range(target_num):
+		targets.append(get_target(inputs[t]))
 	print('input size:', obstacle_map.shape)
 	#obstacle_map = np.zeros([400, 152])
 	#create AStar search
-	astar = AStar(start_point, target_point, obstacle_map, prediction_map, car)
+	astar = AStar(start_point, targets, obstacle_map, predictions, car)
 	astar.search()
 	'''
 	cv2.imshow('obstacle_map', obstacle_map)

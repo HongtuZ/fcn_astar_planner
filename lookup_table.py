@@ -32,10 +32,40 @@ def generate_table():
 	print('look up table generating...')
 	return lookup_table
 
+def generate_circle_table():
+	lookup_table = []
+	#0-45 degrees
+	primitive = [(-10,0,0),(-10,1,5.7),(-10,2,11.3),(-10,3,16.7),(-9,3,18.4),(-9,4,24),(-9,5,29.1),(-8,5,32),(-8,6,36.9),(-7,7,45)]
+	lookup_table += primitive
+	#45-90 degrees
+	for p in reversed(primitive):
+		n = (-p[1],-p[0],90-p[2])
+		if n not in lookup_table:
+			lookup_table.append(n)
+	#90-180	
+	for p in reversed(lookup_table):
+		n = (-p[0],p[1],180-p[2])
+		if n not in lookup_table:
+			lookup_table.append(n)
+	#180-360	
+	for p in reversed(lookup_table):
+		n = (p[0],-p[1],360-p[2])
+		if n not in lookup_table:
+			lookup_table.append(n)
+	lookup_table.pop()
+	return lookup_table
+
 if __name__ == '__main__':
-	table = generate_table()
-	print('the look up table size is:', len(table))
+	table = generate_circle_table()
+	'''
 	for i in range(len(table)):
 		print('[%s %s %.2f]' % (table[i][0], table[i][1] , table[i][2]), end='')
-		if i %10 == 0:
+		if i %10 == 9:
 			print('\n')
+	'''
+	print(table)
+	print('lookup_table size:', len(table))
+	d = {}
+	for i, p in enumerate(table):
+		d[p[2]] = i
+	print(len(d))
